@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flowly Admin - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="laporan.html">Laporan bantuan</a>
+    <a href="kategori.html">Kategori bawaan</a>
+    <span id="admin-email"></span>
+    <button onclick="logout()">Keluar</button>
+  </nav>
+
+  <h1>Dashboard</h1>
+  <p id="pesan"></p>
+
+  <h2>Ringkasan</h2>
+  <table>
+    <thead><tr><th>Data</th><th>Jumlah</th></tr></thead>
+    <tbody id="tbody-stat"></tbody>
+  </table>
+
+  <h2>Laporan bantuan terbaru</h2>
+  <table>
+    <thead><tr><th>Tanggal</th><th>Email</th><th>Jenis</th><th>Pesan</th><th>Status</th></tr></thead>
+    <tbody id="tbody-laporan"></tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

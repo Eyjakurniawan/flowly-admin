@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flowly Admin - Masuk</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h1>Flowly Admin</h1>
+  <h2>Masuk</h2>
+
+  <form id="form-login">
+    <p>
+      <label>Email<br><input type="email" id="email" required></label>
+    </p>
+    <p>
+      <label>Kata sandi<br><input type="password" id="password" required></label>
+    </p>
+    <button type="submit">Masuk</button>
+  </form>
+  <p id="pesan"></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Kalau sudah punya sesi, langsung ke dashboard
+    // (dashboard akan mengecek admin atau bukan).
+    db.auth.getSession().then(({ data }) => {
+      if (data.session) location.href = 'dashboard.html';
+    });
+
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      tampilPesan('Memproses...');
+      const hasil = await login(
+        document.getElementById('email').value,
+        document.getElementById('password').value
+      );
+      if (!hasil.ok) return tampilPesan(hasil.message, true);
+      location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>

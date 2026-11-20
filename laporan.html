@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flowly Admin - Laporan bantuan</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="laporan.html">Laporan bantuan</a>
+    <a href="kategori.html">Kategori bawaan</a>
+    <span id="admin-email"></span>
+    <button onclick="logout()">Keluar</button>
+  </nav>
+
+  <h1>Laporan bantuan</h1>
+
+  <p>
+    <label>Filter status:
+      <select id="filter-status">
+        <option value="">Semua</option>
+        <option value="baru">baru</option>
+        <option value="diproses">diproses</option>
+        <option value="selesai">selesai</option>
+      </select>
+    </label>
+    <button id="btn-muat">Muat ulang</button>
+  </p>
+  <p id="pesan"></p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tanggal</th><th>Email</th><th>Jenis</th><th>Pesan</th>
+        <th>Status</th><th>Balasan</th><th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/laporan.js"></script>
+</body>
+</html>

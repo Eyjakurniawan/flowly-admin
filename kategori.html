@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flowly Admin - Kategori bawaan</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="laporan.html">Laporan bantuan</a>
+    <a href="kategori.html">Kategori bawaan</a>
+    <span id="admin-email"></span>
+    <button onclick="logout()">Keluar</button>
+  </nav>
+
+  <h1>Kategori bawaan</h1>
+  <p>Kategori di sini dipakai semua pengguna. Kategori yang sudah dipakai transaksi tidak bisa dihapus.</p>
+  <p id="pesan"></p>
+
+  <h2>Tambah kategori</h2>
+  <form id="form-tambah">
+    <select id="tambah-tipe">
+      <option value="expense">Pengeluaran</option>
+      <option value="income">Pemasukan</option>
+    </select>
+    <input type="text" id="tambah-nama" placeholder="Nama kategori" required>
+    <input type="color" id="tambah-warna" value="#3b82f6">
+    <button type="submit">Tambah</button>
+  </form>
+
+  <h2>Pengeluaran</h2>
+  <table>
+    <thead><tr><th>Nama</th><th>Warna</th><th>Kode</th><th>Dipakai</th><th>Aksi</th></tr></thead>
+    <tbody id="tbody-expense"></tbody>
+  </table>
+
+  <h2>Pemasukan</h2>
+  <table>
+    <thead><tr><th>Nama</th><th>Warna</th><th>Kode</th><th>Dipakai</th><th>Aksi</th></tr></thead>
+    <tbody id="tbody-income"></tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/kategori.js"></script>
+</body>
+</html>

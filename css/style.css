@@ -1,0 +1,9 @@
+/* Tampilan polos: fokus ke aliran data dulu. */
+body { font-family: sans-serif; max-width: 1000px; margin: 20px auto; padding: 0 12px; }
+nav { margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #999; }
+nav a { margin-right: 14px; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+th, td { border: 1px solid #999; padding: 6px; text-align: left; vertical-align: top; }
+textarea { width: 100%; box-sizing: border-box; }
+.error { color: #b00020; }
+.ok { color: #1b5e20; }
