@@ -42,7 +42,7 @@ function tampil() {
           ${STATUS.map((s) => `<option value="${s}" ${s === r.status ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
       </td>
-      <td><textarea class="balasan" rows="2">${esc(r.balasan)}</textarea></td>
+      <td><textarea class="balasan" rows="2">${esc(r.balasan ?? '')}</textarea></td>
       <td>
         <button data-act="simpan">Simpan</button>
         <button data-act="hapus">Hapus</button>
