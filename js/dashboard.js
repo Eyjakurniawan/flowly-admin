@@ -47,7 +47,7 @@ const LABEL_STAT = {
         <td>${esc(r.email)}</td>
         <td>${esc(r.type)}</td>
         <td>${esc(String(r.message ?? '').slice(0, 80))}</td>
-        <td>${esc(r.status)}</td>
+        <td><span class="badge badge-${esc(r.status)}">${esc(r.status)}</span></td>
       </tr>`).join('');
   }
 })();

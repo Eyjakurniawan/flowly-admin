@@ -20,3 +20,11 @@ function tampilPesan(text, isError = false) {
   el.textContent = text;
   el.className = isError ? 'error' : 'ok';
 }
+
+// Tandai menu navigasi yang sedang dibuka.
+document.addEventListener('DOMContentLoaded', () => {
+  const halaman = location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('nav a').forEach((a) => {
+    if (a.getAttribute('href') === halaman) a.classList.add('aktif');
+  });
+});

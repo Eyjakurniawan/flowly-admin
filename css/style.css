@@ -1,9 +1,165 @@
-/* Tampilan polos: fokus ke aliran data dulu. */
-body { font-family: sans-serif; max-width: 1000px; margin: 20px auto; padding: 0 12px; }
-nav { margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #999; }
-nav a { margin-right: 14px; }
-table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-th, td { border: 1px solid #999; padding: 6px; text-align: left; vertical-align: top; }
-textarea { width: 100%; box-sizing: border-box; }
-.error { color: #b00020; }
-.ok { color: #1b5e20; }
+/* Flowly Admin: simpel, tenang, mudah dibaca. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #1c2530;
+  --muted: #6b7686;
+  --line: #e3e7ec;
+  --accent: #0f766e;
+  --accent-hover: #0b5f58;
+  --accent-soft: #e6f3f1;
+  --danger: #b42318;
+  --danger-soft: #fdeceb;
+  --warn: #9a6700;
+  --warn-soft: #fff4d6;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.6 "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Isi halaman */
+body > h1, body > h2, body > p, body > table, body > form, body > div {
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+h1 { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; margin-top: 32px; margin-bottom: 8px; }
+h2 { font-size: 17px; font-weight: 600; margin-top: 32px; margin-bottom: 12px; }
+p  { color: var(--muted); margin-top: 0; margin-bottom: 14px; }
+a  { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Navigasi */
+nav {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 4px;
+  padding: 10px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+nav a {
+  margin: 0; padding: 6px 12px;
+  color: var(--muted); font-weight: 500;
+  border-radius: 8px;
+}
+nav a:hover { color: var(--ink); background: var(--bg); text-decoration: none; }
+nav a.aktif { color: var(--accent); background: var(--accent-soft); }
+nav #admin-email { margin-left: auto; margin-right: 10px; color: var(--muted); font-size: 13px; }
+
+/* Tabel */
+table {
+  display: block; overflow-x: auto;
+  width: calc(100% - 48px);
+  max-width: 1032px;
+  margin: 0 auto 24px;
+  border-collapse: separate; border-spacing: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+thead, tbody { width: 100%; }
+th, td { padding: 12px 14px; text-align: left; vertical-align: top; border: 0; border-bottom: 1px solid var(--line); }
+th { background: #fafbfc; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: #fafbfc; }
+
+/* Form */
+input[type="text"], input[type="email"], input[type="password"], select, textarea {
+  font: inherit; color: var(--ink);
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  transition: border-color .15s, box-shadow .15s;
+}
+input[type="text"], input[type="email"], input[type="password"] { width: 100%; }
+td input[type="text"] { min-width: 140px; }
+textarea { width: 100%; min-width: 200px; resize: vertical; }
+input[type="color"] {
+  width: 38px; height: 34px; padding: 2px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: var(--surface); cursor: pointer; vertical-align: middle;
+}
+:is(input, select, textarea, button, a):focus-visible {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, .25);
+}
+
+#form-tambah {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 8px;
+}
+#form-tambah input[type="text"] { flex: 1; min-width: 180px; width: auto; }
+
+/* Tombol */
+button {
+  font: inherit; font-weight: 500; cursor: pointer;
+  padding: 8px 14px;
+  color: #fff; background: var(--accent);
+  border: 1px solid var(--accent); border-radius: 8px;
+  transition: background .15s, border-color .15s;
+}
+button:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+nav button, button[data-act="hapus"], #btn-muat {
+  color: var(--ink); background: var(--surface); border-color: var(--line);
+}
+nav button:hover, #btn-muat:hover { background: var(--bg); border-color: #cfd5dc; }
+button[data-act="hapus"] { color: var(--danger); }
+button[data-act="hapus"]:hover:not(:disabled) { background: var(--danger-soft); border-color: #f3c4c0; }
+td button { padding: 5px 10px; font-size: 13px; margin: 0 4px 4px 0; }
+
+/* Pesan */
+#pesan { margin-top: 0; }
+#pesan:empty { display: none; }
+#pesan.ok, #pesan.error {
+  padding: 10px 14px; border-radius: 8px; font-size: 14px;
+}
+#pesan.ok { color: var(--accent); background: var(--accent-soft); }
+#pesan.error { color: var(--danger); background: var(--danger-soft); }
+
+/* Label status */
+.badge {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 500; background: var(--bg); color: var(--muted);
+}
+.badge-baru { color: var(--warn); background: var(--warn-soft); }
+.badge-diproses { color: #1d4ed8; background: #e8effd; }
+.badge-selesai { color: var(--accent); background: var(--accent-soft); }
+
+/* Halaman login */
+body:has(#form-login) { display: grid; place-items: center; min-height: 100vh; padding: 24px; }
+body:has(#form-login) > * { padding: 0; margin: 0; }
+#form-login, body:has(#form-login) > h1, body:has(#form-login) > h2, body:has(#form-login) > #pesan { width: 100%; max-width: 360px; }
+body:has(#form-login) { grid-template-columns: minmax(0, 360px); justify-content: center; align-content: center; gap: 0; }
+body:has(#form-login) > h1 { font-size: 24px; margin-bottom: 2px; }
+body:has(#form-login) > h2 { font-size: 15px; font-weight: 400; color: var(--muted); margin-bottom: 20px; }
+#form-login {
+  padding: 24px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+#form-login p { color: var(--ink); font-weight: 500; font-size: 14px; }
+#form-login input { margin-top: 6px; }
+#form-login button { width: 100%; margin-top: 4px; padding: 10px; }
+body:has(#form-login) > #pesan { margin-top: 14px; }
+
+@media (max-width: 640px) {
+  nav { flex-wrap: wrap; padding: 8px 12px; }
+  nav #admin-email { display: none; }
+  nav button { margin-left: auto; }
+  body > h1, body > h2, body > p, body > form { padding-left: 16px; padding-right: 16px; }
+  table { width: calc(100% - 32px); }
+}
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
