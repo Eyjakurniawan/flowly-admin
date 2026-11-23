@@ -15,30 +15,46 @@
     <button onclick="logout()">Keluar</button>
   </nav>
 
-  <h1>Laporan bantuan</h1>
+  <main>
+    <header class="page-head">
+      <h1>Laporan bantuan</h1>
+      <p>Tinjau, balas, dan atur status laporan yang dikirim pengguna.</p>
+    </header>
 
-  <p>
-    <label>Filter status:
-      <select id="filter-status">
-        <option value="">Semua</option>
-        <option value="baru">baru</option>
-        <option value="diproses">diproses</option>
-        <option value="selesai">selesai</option>
-      </select>
-    </label>
-    <button id="btn-muat">Muat ulang</button>
-  </p>
-  <p id="pesan"></p>
+    <div class="toolbar">
+      <label>Filter status
+        <select id="filter-status">
+          <option value="">Semua</option>
+          <option value="baru">baru</option>
+          <option value="diproses">diproses</option>
+          <option value="selesai">selesai</option>
+        </select>
+      </label>
+      <button id="btn-muat">Muat ulang</button>
+    </div>
+    <p id="pesan"></p>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Tanggal</th><th>Email</th><th>Jenis</th><th>Pesan</th>
-        <th>Status</th><th>Balasan</th><th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+    <table class="inbox">
+      <thead>
+        <tr>
+          <th>Tanggal</th><th>Email</th><th>Jenis</th><th>Pesan</th>
+          <th>Status</th><th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </main>
+
+  <dialog id="dlg-hapus">
+    <form method="dialog" class="dlg-body">
+      <h3>Hapus laporan ini?</h3>
+      <p>Laporan dari <strong id="dlg-email"></strong> akan dihapus permanen dan tidak bisa dikembalikan.</p>
+      <div class="dlg-actions">
+        <button value="batal" class="btn-ghost">Batal</button>
+        <button value="hapus" class="btn-danger">Hapus laporan</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>

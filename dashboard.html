@@ -15,20 +15,34 @@
     <button onclick="logout()">Keluar</button>
   </nav>
 
-  <h1>Dashboard</h1>
-  <p id="pesan"></p>
+  <main>
+    <header class="page-head">
+      <h1>Dashboard</h1>
+      <p>Ringkasan aktivitas Flowly dan laporan bantuan terbaru dari pengguna.</p>
+    </header>
+    <p id="pesan"></p>
 
-  <h2>Ringkasan</h2>
-  <table>
-    <thead><tr><th>Data</th><th>Jumlah</th></tr></thead>
-    <tbody id="tbody-stat"></tbody>
-  </table>
+    <section>
+      <h2>Ringkasan</h2>
+      <table class="stats">
+        <thead><tr><th>Data</th><th>Jumlah</th></tr></thead>
+        <tbody id="tbody-stat"></tbody>
+      </table>
+    </section>
 
-  <h2>Laporan bantuan terbaru</h2>
-  <table>
-    <thead><tr><th>Tanggal</th><th>Email</th><th>Jenis</th><th>Pesan</th><th>Status</th></tr></thead>
-    <tbody id="tbody-laporan"></tbody>
-  </table>
+    <section>
+      <div class="section-head">
+        <h2>Laporan bantuan terbaru</h2>
+        <a href="laporan.html">Lihat semua &rarr;</a>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Email</th><th>Jenis</th><th>Pesan</th><th>Status</th></tr></thead>
+          <tbody id="tbody-laporan"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>

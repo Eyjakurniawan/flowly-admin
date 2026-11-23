@@ -15,32 +15,46 @@
     <button onclick="logout()">Keluar</button>
   </nav>
 
-  <h1>Kategori bawaan</h1>
-  <p>Kategori di sini dipakai semua pengguna. Kategori yang sudah dipakai transaksi tidak bisa dihapus.</p>
-  <p id="pesan"></p>
+  <main>
+    <header class="page-head">
+      <h1>Kategori bawaan</h1>
+      <p>Kategori di sini dipakai semua pengguna. Kategori yang sudah dipakai transaksi tidak bisa dihapus.</p>
+    </header>
+    <p id="pesan"></p>
 
-  <h2>Tambah kategori</h2>
-  <form id="form-tambah">
-    <select id="tambah-tipe">
-      <option value="expense">Pengeluaran</option>
-      <option value="income">Pemasukan</option>
-    </select>
-    <input type="text" id="tambah-nama" placeholder="Nama kategori" required>
-    <input type="color" id="tambah-warna" value="#3b82f6">
-    <button type="submit">Tambah</button>
-  </form>
+    <section>
+      <h2>Tambah kategori</h2>
+      <form id="form-tambah">
+        <select id="tambah-tipe">
+          <option value="expense">Pengeluaran</option>
+          <option value="income">Pemasukan</option>
+        </select>
+        <input type="text" id="tambah-nama" placeholder="Nama kategori" required>
+        <input type="color" id="tambah-warna" value="#3b82f6">
+        <button type="submit">Tambah</button>
+      </form>
+    </section>
 
-  <h2>Pengeluaran</h2>
-  <table>
-    <thead><tr><th>Nama</th><th>Warna</th><th>Kode</th><th>Dipakai</th><th>Aksi</th></tr></thead>
-    <tbody id="tbody-expense"></tbody>
-  </table>
+    <section>
+      <h2>Pengeluaran</h2>
+      <div class="table-card">
+        <table>
+      <thead><tr><th>Nama</th><th>Warna</th><th>Kode</th><th>Dipakai</th><th>Aksi</th></tr></thead>
+          <tbody id="tbody-expense"></tbody>
+        </table>
+      </div>
+    </section>
 
-  <h2>Pemasukan</h2>
-  <table>
-    <thead><tr><th>Nama</th><th>Warna</th><th>Kode</th><th>Dipakai</th><th>Aksi</th></tr></thead>
-    <tbody id="tbody-income"></tbody>
-  </table>
+    <section>
+      <h2>Pemasukan</h2>
+      <div class="table-card">
+        <table>
+      <thead><tr><th>Nama</th><th>Warna</th><th>Kode</th><th>Dipakai</th><th>Aksi</th></tr></thead>
+          <tbody id="tbody-income"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
