@@ -1,53 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Flowly Admin - Dashboard</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <nav>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="laporan.html">Laporan bantuan</a>
-    <a href="kategori.html">Kategori bawaan</a>
-    <span id="admin-email"></span>
-    <button onclick="logout()">Keluar</button>
-  </nav>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Flowly Admin - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="dashboard">
+    <main id="view" class="view anim"></main>
 
-  <main>
-    <header class="page-head">
-      <h1>Dashboard</h1>
-      <p>Ringkasan aktivitas Flowly dan laporan bantuan terbaru dari pengguna.</p>
-    </header>
-    <p id="pesan"></p>
-
-    <section>
-      <h2>Ringkasan</h2>
-      <table class="stats">
-        <thead><tr><th>Data</th><th>Jumlah</th></tr></thead>
-        <tbody id="tbody-stat"></tbody>
-      </table>
-    </section>
-
-    <section>
-      <div class="section-head">
-        <h2>Laporan bantuan terbaru</h2>
-        <a href="laporan.html">Lihat semua &rarr;</a>
-      </div>
-      <div class="table-card">
-        <table>
-          <thead><tr><th>Tanggal</th><th>Email</th><th>Jenis</th><th>Pesan</th><th>Status</th></tr></thead>
-          <tbody id="tbody-laporan"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/util.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/dashboard.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/util.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+  </body>
 </html>

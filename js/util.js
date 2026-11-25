@@ -3,28 +3,32 @@
 // Wajib dipakai untuk teks dari database sebelum dimasukkan ke innerHTML
 // (isi laporan ditulis pengguna, jadi tidak boleh dipercaya).
 function esc(text) {
-  return String(text ?? '').replace(/[&<>"']/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  }[c]));
+  return String(text ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[c],
+  );
 }
 
 function fmtTanggal(iso) {
-  if (!iso) return '-';
-  return new Date(iso).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+  if (!iso) return "-";
+  return new Date(iso).toLocaleString("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
-// Menampilkan pesan di <p id="pesan"></p>.
+// Pesan di <p id="pesan" class="msg">. Dipakai untuk pesan error;
+// pesan sukses memakai toast() dari ui.js.
 function tampilPesan(text, isError = false) {
-  const el = document.getElementById('pesan');
+  const el = document.getElementById("pesan");
   if (!el) return;
   el.textContent = text;
-  el.className = isError ? 'error' : 'ok';
+  el.className = "msg " + (isError ? "is-error" : "is-ok");
 }
-
-// Tandai menu navigasi yang sedang dibuka.
-document.addEventListener('DOMContentLoaded', () => {
-  const halaman = location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('nav a').forEach((a) => {
-    if (a.getAttribute('href') === halaman) a.classList.add('aktif');
-  });
-});

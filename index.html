@@ -1,47 +1,135 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Flowly Admin - Masuk</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <h1>Flowly Admin</h1>
-  <h2>Masuk</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Flowly Admin - Masuk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="login" id="login">
+      <div class="water" aria-hidden="true">
+        <svg class="wv b" viewBox="0 0 320 30" preserveAspectRatio="none">
+          <path d="M0 14q40-20 80 0t80 0 80 0 80 0V30H0Z" fill="#142C6B" />
+        </svg>
+        <svg class="wv" viewBox="0 0 320 30" preserveAspectRatio="none">
+          <path d="M0 14q40 18 80 0t80 0 80 0 80 0V30H0Z" fill="#1E54D2" />
+        </svg>
+      </div>
+      <form class="lc" id="lf" novalidate>
+        <div style="display: grid; justify-items: center">
+          <span
+            class="fl"
+            id="maskot"
+            style="width: 128px; height: 128px"
+          ></span>
+        </div>
+        <div class="brand">Flowly</div>
+        <div class="sub" style="text-align: center">
+          Ruang kendali admin. Masuk untuk mengelola Flowly.
+        </div>
+        <div class="fld">
+          <label for="email">Email admin</label>
+          <input
+            class="in"
+            id="email"
+            type="email"
+            autocomplete="email"
+            inputmode="email"
+            placeholder="admin@flowly.app"
+          />
+          <div class="err" id="emailE" role="alert"></div>
+        </div>
+        <div class="fld">
+          <label for="password">Kata sandi</label>
+          <div class="pw">
+            <input
+              class="in"
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Kata sandimu"
+            />
+            <button
+              type="button"
+              id="eye"
+              aria-pressed="false"
+              aria-label="Tampilkan kata sandi"
+            >
+              Lihat
+            </button>
+          </div>
+          <div class="err" id="passwordE" role="alert"></div>
+        </div>
+        <p id="pesan" class="msg" role="alert"></p>
+        <button class="cta" id="lgo" type="submit">Masuk</button>
+      </form>
+    </div>
 
-  <form id="form-login">
-    <p>
-      <label>Email<br><input type="email" id="email" required></label>
-    </p>
-    <p>
-      <label>Kata sandi<br><input type="password" id="password" required></label>
-    </p>
-    <button type="submit">Masuk</button>
-  </form>
-  <p id="pesan"></p>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/util.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+      document.getElementById("maskot").innerHTML = floy("senang", true);
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/util.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
-    // Kalau sudah punya sesi, langsung ke dashboard
-    // (dashboard akan mengecek admin atau bukan).
-    db.auth.getSession().then(({ data }) => {
-      if (data.session) location.href = 'dashboard.html';
-    });
+      // Kalau sudah punya sesi, langsung ke dashboard
+      // (dashboard akan mengecek admin atau bukan).
+      db.auth.getSession().then(({ data }) => {
+        if (data.session) location.href = "dashboard.html";
+      });
 
-    document.getElementById('form-login').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      tampilPesan('Memproses...');
-      const hasil = await login(
-        document.getElementById('email').value,
-        document.getElementById('password').value
+      const emOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+      document.getElementById("eye").onclick = () => {
+        const i = document.getElementById("password"),
+          s = i.type === "password";
+        i.type = s ? "text" : "password";
+        document.getElementById("eye").textContent = s ? "Sembunyi" : "Lihat";
+        document.getElementById("eye").setAttribute("aria-pressed", s);
+      };
+      ["email", "password"].forEach((id) =>
+        document.getElementById(id).addEventListener("input", () => {
+          document.getElementById(id + "E").textContent = "";
+          document.getElementById(id).classList.remove("bad");
+          tampilPesan("");
+        }),
       );
-      if (!hasil.ok) return tampilPesan(hasil.message, true);
-      location.href = 'dashboard.html';
-    });
-  </script>
-</body>
+
+      document.getElementById("lf").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const m = document.getElementById("email").value.trim();
+        const p = document.getElementById("password").value;
+        const e1 = !m
+          ? "Email wajib diisi."
+          : !emOk(m)
+            ? "Format email belum benar."
+            : "";
+        const e2 = !p ? "Kata sandi wajib diisi." : "";
+        document.getElementById("emailE").textContent = e1;
+        document.getElementById("email").classList.toggle("bad", !!e1);
+        document.getElementById("passwordE").textContent = e2;
+        document.getElementById("password").classList.toggle("bad", !!e2);
+        if (e1) return document.getElementById("email").focus();
+        if (e2) return document.getElementById("password").focus();
+
+        const b = document.getElementById("lgo");
+        b.disabled = true;
+        b.textContent = "Memproses…";
+        const hasil = await login(m, p);
+        if (!hasil.ok) {
+          b.disabled = false;
+          b.textContent = "Masuk";
+          return tampilPesan(hasil.message, true);
+        }
+        location.href = "dashboard.html";
+      });
+    </script>
+  </body>
 </html>
