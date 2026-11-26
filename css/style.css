@@ -261,3 +261,20 @@ html,body{max-width:100%;overflow-x:clip}
  .main{padding-left:14px;padding-right:14px}
 }
 @media (max-height:640px){.lc .fl{width:84px!important;height:84px!important}}
+
+/* Dropdown filter jenis: daftar pilihan ikut tema terang/gelap */
+select.in option{background:var(--card);color:var(--ink)}
+
+/* Dashboard: dua kartu kategori di samping grafik. Tingginya TIDAK boleh
+   mempengaruhi kartu grafik: kartu grafik menentukan tinggi baris, lalu kedua
+   kartu kategori membagi tinggi itu sama besar. */
+.kcard{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.kcard .row{flex:none}
+.kcard .lnk,.kcard .lnk:link,.kcard .lnk:visited,.kcard .lnk:hover,.kcard .lnk:active,.kcard .lnk:focus{height:auto;padding:0;white-space:nowrap;color:var(--inc);text-decoration:none}
+.kcard .lnk:hover{text-decoration:underline}
+.kcard .klist{flex:1;min-height:0;overflow:hidden;margin-top:6px}
+.kin{display:grid;gap:14px}
+@media (min-width:761px){
+  .kwrap{position:relative;min-width:0}
+  .kin{position:absolute;inset:0;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}
+}

@@ -17,6 +17,15 @@ const dariHash = () => {
   RF = h === "baru" || h === "diproses" || h === "selesai" ? h : "semua";
 };
 
+// Pilihan jenis tetap muncul di dropdown walau belum ada laporannya.
+// Jenis lain yang ditemukan di data (isi kolom type bebas) ditambahkan di bawahnya.
+const JENIS_DASAR = [
+  "Bug atau kesalahan",
+  "Saldo tidak sesuai",
+  "Saran fitur",
+  "Lainnya",
+];
+
 const hitung = (s) =>
   s === "semua" ? semua.length : semua.filter((r) => r.status === s).length;
 
@@ -54,7 +63,12 @@ function kartu(r, i) {
 }
 
 function tampil() {
-  const jenis = [...new Set(semua.map((r) => r.type).filter(Boolean))].sort();
+  const jenis = [
+    ...JENIS_DASAR,
+    ...[...new Set(semua.map((r) => r.type).filter(Boolean))]
+      .filter((t) => !JENIS_DASAR.includes(t))
+      .sort(),
+  ];
   if (RT !== "semua" && !jenis.includes(RT)) RT = "semua";
   const rows = semua.filter(
     (r) =>
@@ -70,7 +84,7 @@ function tampil() {
           ${["semua", "baru", "diproses", "selesai"].map((s) => `<button data-act="rf" data-f="${s}" aria-pressed="${RF === s}">${s === "semua" ? "Semua" : STATUS[s].label}<small>${hitung(s)}</small></button>`).join("")}
         </div>
         <select class="in" id="rt" aria-label="Filter jenis">
-          <option value="semua">Semua jenis</option>
+          <option value="semua">Semua</option>
           ${jenis.map((t) => `<option value="${esc(t)}"${RT === t ? " selected" : ""}>${esc(t)}</option>`).join("")}
         </select>
       </div>
