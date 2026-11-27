@@ -6,11 +6,13 @@
 //   Browser -> db.rpc('admin_user_overview')  -> jumlah per pengguna
 //   Browser -> db.rpc('admin_category_usage') -> pemakaian kategori bawaan
 //   Browser -> db.rpc('admin_tx_series')      -> jumlah transaksi per hari
+//   Browser -> db.rpc('admin_detail_items')   -> jenis dompet, rencana, anggaran per pengguna
 
 let STAT = {};
 let USERS = [];
 let TX = [];
 let KAT = { expense: [], income: [] };
+let ITEMS = []; // hasil db.rpc("admin_detail_items"): [{kind, user_id, label, status, color}]
 
 const bars = (L) => {
   const tot = L.reduce((a, x) => a + x.v, 0) || 1,
@@ -48,7 +50,7 @@ const sum = (k) => USERS.reduce((a, u) => a + (Number(u[k]) || 0), 0);
 const tiles3 = (k) => {
   const now = new Date();
   const t = (p) => seri(p, TX).t[k];
-  return `<div class="tiles"><div><span class="sub">7 hari terakhir</span><b class="d">${t("Mingguan")}</b></div><div><span class="sub">${MF[now.getMonth()]}</span><b class="d">${t("Bulanan")}</b></div><div><span class="sub">Tahun ${now.getFullYear()}</span><b class="d">${t("Tahunan")}</b></div></div>`;
+  return `<div class="tiles"><div><span class="sub">Minggu ini</span><b class="d">${t("Mingguan")}</b></div><div><span class="sub">${MF[now.getMonth()]}</span><b class="d">${t("Bulanan")}</b></div><div><span class="sub">Tahun ${now.getFullYear()}</span><b class="d">${t("Tahunan")}</b></div></div>`;
 };
 
 // Pemakaian kategori bawaan (sama seperti dashboard)
@@ -80,6 +82,64 @@ const cnt = (field, judul) =>
       .sort((a, b) => b[field] - a[field])
       .map((u) => [ue(u), u[field]]),
   );
+
+// ---- Rincian dompet / rencana / anggaran: dikelompokkan per jenis atau kategori ----
+const JENIS_DOMPET = {
+  bank: ["Bank", "#1E3A8A"],
+  ewallet: ["Dompet digital", "#0284C7"],
+  cash: ["Tunai", "#16A34A"],
+};
+// Nilai wallets.type bisa beragam penulisannya; samakan ke bank / ewallet / cash.
+function jenisDompet(t) {
+  const x = String(t || "").toLowerCase().replace(/[^a-z]/g, "");
+  if (x.includes("bank")) return JENIS_DOMPET.bank;
+  if (x.includes("wallet") || x.includes("digital") || x.includes("emoney")) return JENIS_DOMPET.ewallet;
+  if (x.includes("cash") || x.includes("tunai")) return JENIS_DOMPET.cash;
+  return [t ? String(t) : "Lainnya", "#64748B"];
+}
+const sudahTercapai = (st) => /tercapai|selesai|complete|done|achiev/i.test(String(st || ""));
+const WARNA_RENCANA = ["#2563EB", "#16A34A", "#D97706", "#BE185D", "#7C3AED", "#0891B2"];
+
+// Ambil item sesuai jenisnya dan beri nama + warna tampilan.
+function itemsOf(kind) {
+  return ITEMS.filter((x) => x.kind === kind).map((x) => {
+    if (kind === "wallet") {
+      const [nama, warna] = jenisDompet(x.label);
+      return { ...x, nama, warna };
+    }
+    if (kind === "plan") return { ...x, nama: x.label || "Lainnya", warna: warnaValid(x.color) };
+    return { ...x, nama: x.label || "Lainnya", warna: warnaValid(x.color) };
+  });
+}
+
+// Hitung per nama -> daftar untuk bars(), diurutkan terbanyak.
+function kelompok(items) {
+  const m = new Map();
+  items.forEach((x) => {
+    const f = m.get(x.nama);
+    f ? f.v++ : m.set(x.nama, { k: x.nama, v: 1, c: x.warna });
+  });
+  return [...m.values()].sort((a, b) => b.v - a.v);
+}
+
+const pill = (teks, warna) =>
+  `<span class="pill" style="--c:${esc(warna)}">${esc(teks)}</span>`;
+
+// Tabel pengguna: email | jumlah | pil-pil (satu pil per item).
+function tabelItem(items, judulJumlah, judulPil, pilTeks) {
+  const per = new Map();
+  items.forEach((x) => {
+    if (!per.has(x.user_id)) per.set(x.user_id, []);
+    per.get(x.user_id).push(x);
+  });
+  const rows = USERS.filter((u) => per.has(u.id))
+    .sort((a, b) => per.get(b.id).length - per.get(a.id).length)
+    .map((u) => {
+      const l = per.get(u.id);
+      return [ue(u), l.length, `<span class="chips">${l.map((x) => pill(pilTeks(x), x.warna)).join("")}</span>`];
+    });
+  return ut("minmax(200px,2fr) 100px minmax(0,3fr)", ["Pengguna", judulJumlah, judulPil], rows);
+}
 
 const DET = {
   users: {
@@ -115,7 +175,10 @@ const DET = {
     n: () => STAT.wallets,
     d: "Dompet yang dibuat pengguna. Saldo tidak ditampilkan di sini.",
     tiles: () => "",
-    body: () => cnt("wallets", "Dompet"),
+    body: () => {
+      const it = itemsOf("wallet");
+      return bx("Dompet per jenis", kelompok(it)) + tabelItem(it, "Dompet", "Jenis", (x) => x.nama);
+    },
   },
   exp: {
     t: "Transaksi pengeluaran", l: "Total transaksi pengeluaran", ic: "down", c: "var(--acc)",
@@ -135,15 +198,29 @@ const DET = {
     t: "Rencana tabungan", l: "Total rencana", ic: "target", c: "var(--ok)",
     n: () => STAT.planning,
     d: "Target tabungan yang dibuat pengguna. Nominal target tidak ditampilkan.",
-    tiles: () => "",
-    body: () => cnt("plans", "Rencana"),
+    tiles: () => {
+      const it = itemsOf("plan"),
+        tc = it.filter((x) => sudahTercapai(x.status)).length;
+      return `<div class="tiles"><div><span class="sub">Aktif</span><b class="d">${it.length - tc}</b></div><div><span class="sub">Tercapai</span><b class="d">${tc}</b></div></div>`;
+    },
+    body: () => {
+      const it = itemsOf("plan").map((x, i, a) => x);
+      const warna = {};
+      kelompok(it).forEach((g, i) => (warna[g.k] = WARNA_RENCANA[i % WARNA_RENCANA.length]));
+      it.forEach((x) => (x.warna = warna[x.nama]));
+      const ket = (x) => x.nama + " \u2022 " + (sudahTercapai(x.status) ? "Tercapai" : "Aktif");
+      return bx("Rencana per kategori", kelompok(it)) + tabelItem(it, "Rencana", "Detail", ket);
+    },
   },
   budgets: {
     t: "Anggaran aktif", l: "Total anggaran", ic: "pie", c: "var(--warn)",
     n: () => STAT.budgets,
     d: "Batas pengeluaran yang dipasang pengguna. Nominal batas tidak ditampilkan.",
     tiles: () => "",
-    body: () => cnt("budgets", "Anggaran"),
+    body: () => {
+      const it = itemsOf("budget");
+      return bx("Anggaran per kategori", kelompok(it)) + tabelItem(it, "Anggaran", "Kategori", (x) => x.nama);
+    },
   },
 };
 
@@ -165,18 +242,20 @@ function tampil() {
 
   document.getElementById("view").innerHTML = '<div class="skel"></div>';
 
-  const [st, ov, pakai, ser, exp, inc] = await Promise.all([
+  const [st, ov, pakai, ser, exp, inc, itm] = await Promise.all([
     db.rpc("admin_stats"),
     db.rpc("admin_user_overview"),
     db.rpc("admin_category_usage"),
     db.rpc("admin_tx_series"),
     db.from("expense_categories").select("id, name, color").is("user_id", null),
     db.from("income_categories").select("id, name, color").is("user_id", null),
+    db.rpc("admin_detail_items"),
   ]);
 
   STAT = st.data || {};
   USERS = ov.data || [];
   TX = ser.data || [];
+  ITEMS = itm.data || [];
   const usage = {};
   (pakai.data || []).forEach((u) => (usage[`${u.kind}:${u.category_id}`] = Number(u.total)));
   const pakaiKat = (kind, res) =>
@@ -190,6 +269,7 @@ function tampil() {
   if (ov.error) galat.push("daftar pengguna (" + ov.error.message + ")");
   if (ser.error) galat.push("grafik (" + ser.error.message + ")");
   if (pakai.error) galat.push("pemakaian kategori");
+  if (itm.error) galat.push("rincian (" + itm.error.message + ")");
   if (galat.length) tampilPesan("Gagal memuat: " + galat.join(", ") + ".", true);
 
   addEventListener("hashchange", tampil);

@@ -1,9 +1,8 @@
-// Dashboard: angka ringkasan (lewat fungsi admin_stats), pemakaian kategori bawaan
+// Dashboard: angka ringkasan (lewat fungsi admin_stats), grafik transaksi
 // dan 4 laporan terbaru.
 //
 // ALIRAN DATA:
 //   Browser -> db.rpc('admin_stats')            -> angka (fungsi SQL cek is_admin)
-//   Browser -> db.rpc('admin_category_usage')   -> jumlah transaksi per kategori
 //   Browser -> db.rpc('admin_tx_series')        -> jumlah transaksi per hari (grafik)
 //   Browser -> db.from('support_reports')       -> RLS "admin baca laporan"
 
@@ -59,44 +58,6 @@ function htmlKartu(stat) {
     .join("");
 }
 
-// Kartu kategori: tingginya ikut kartu grafik (lihat .kwrap di css). Baris yang
-// tidak muat disembunyikan oleh fitKategori(); "Lihat semua" selalu tampil.
-function htmlBarKategori(judul, daftar, href) {
-  const mx = Math.max(1, ...daftar.map((c) => c.used));
-  const tot = daftar.reduce((a, c) => a + c.used, 0) || 1;
-  return `<div class="card kcard"><div class="row"><h2 class="d">${judul}</h2><a class="lnk" href="${href}">Lihat semua →</a></div><div class="klist">
-    ${
-      daftar.length
-        ? daftar
-            .map(
-              (c) => `
-      <div class="cb"><div class="row"><b><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${esc(warnaValid(c.color))};margin-right:8px"></i>${esc(c.name)}</b><span class="sub">${c.used} transaksi • ${Math.round((c.used / tot) * 100)}%</span></div>
-      <div class="bar"><i data-w="${(c.used / mx) * 100}" style="background:${esc(warnaValid(c.color))}"></i></div></div>`,
-            )
-            .join("")
-        : '<div class="sub" style="padding:14px 0">Belum ada transaksi di kategori bawaan.</div>'
-    }
-  </div></div>`;
-}
-
-// Sembunyikan baris yang tidak muat di kartu (di layar kecil: tampilkan 4 teratas).
-function fitKategori() {
-  const kecil = matchMedia("(max-width:760px)").matches;
-  $$(".klist").forEach((l) => {
-    const rows = [...l.children].filter((x) => x.classList.contains("cb"));
-    rows.forEach((r) => (r.style.display = ""));
-    if (kecil) return rows.slice(4).forEach((r) => (r.style.display = "none"));
-    const batas = l.getBoundingClientRect().bottom;
-    let penuh = false;
-    rows.forEach((r, i) => {
-      if (i > 0 && (penuh || r.getBoundingClientRect().bottom > batas + 0.5)) {
-        penuh = true;
-        r.style.display = "none";
-      }
-    });
-  });
-}
-
 /* ===== grafik transaksi: Mingguan / Bulanan / Tahunan ===== */
 let CP = "Mingguan";
 let TX = []; // hasil db.rpc("admin_tx_series"): [{kind, day:"YYYY-MM-DD", total}]
@@ -116,10 +77,11 @@ function gambarGrafik() {
   const svg = $("#chart");
   if (!svg) return;
   const d = seri(CP, TX),
-    W = 340,
-    H = 180,
+    // Lebar mengikuti kartu (grafik tampil penuh), tinggi dibatasi supaya tidak menjulang.
+    W = Math.max(300, Math.round(svg.getBoundingClientRect().width)),
+    H = W > 700 ? 170 : W > 480 ? 160 : 150,
     L = 10,
-    B = 26,
+    B = 22,
     n = d.l.length,
     mx = Math.max(...d.i, ...d.e, 1) + 1;
   const X = (i) => L + ((W - 2 * L) * i) / (n - 1),
@@ -134,25 +96,27 @@ function gambarGrafik() {
   };
   const now = new Date();
   const pl = {
-    Mingguan: "7 hari terakhir",
+    Mingguan: "Minggu ini",
     Bulanan: MF[now.getMonth()] + " " + now.getFullYear(),
     Tahunan: "Tahun " + now.getFullYear(),
   }[CP];
   $("#cfs").innerHTML = `<div class="sub" style="grid-column:1/-1">${pl}</div><div><span class="sub">Pemasukan</span><b class="d" style="color:var(--inc)">${d.t.i}</b></div><div><span class="sub">Pengeluaran</span><b class="d" style="color:var(--acc)">${d.t.e}</b></div><div><span class="sub">Total</span><b class="d">${d.t.i + d.t.e}</b></div>`;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.style.height = H + "px"; // tinggi pasti, tidak ikut lebar kartu
   svg.innerHTML =
     `<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--inc)" stop-opacity=".35"/><stop offset="1" stop-color="var(--inc)" stop-opacity="0"/></linearGradient></defs>` +
     `<path d="M${L} ${H - B}H${W - L}" stroke="var(--line)"/>` +
     `<path d="${sm(d.i)}L${X(n - 1)} ${H - B}L${X(0)} ${H - B}Z" fill="url(#g)"/>` +
-    `<path class="ln" d="${sm(d.i)}" fill="none" stroke="var(--inc)" stroke-width="3.2" stroke-linecap="round"/>` +
-    `<path class="ln" d="${sm(d.e)}" fill="none" stroke="var(--acc)" stroke-width="3.2" stroke-linecap="round"/>` +
+    `<path class="ln" d="${sm(d.i)}" fill="none" stroke="var(--inc)" stroke-width="2.4" stroke-linecap="round"/>` +
+    `<path class="ln" d="${sm(d.e)}" fill="none" stroke="var(--acc)" stroke-width="2.4" stroke-linecap="round"/>` +
     `<line id="gl" y1="8" y2="${H - B}" stroke="var(--mut)" stroke-dasharray="3 4" opacity="0"/>` +
-    `<circle id="c1" r="5.5" fill="var(--inc)" stroke="var(--card)" stroke-width="2.5" opacity="0"/>` +
-    `<circle id="c2" r="5.5" fill="var(--acc)" stroke="var(--card)" stroke-width="2.5" opacity="0"/>` +
+    `<circle id="c1" r="4" fill="var(--inc)" stroke="var(--card)" stroke-width="2.5" opacity="0"/>` +
+    `<circle id="c2" r="4" fill="var(--acc)" stroke="var(--card)" stroke-width="2.5" opacity="0"/>` +
     d.l
       .map((t, i) =>
-        n > 7 && i % 2
+        n > 12 && i % 2
           ? ""
-          : `<text x="${X(i)}" y="${H - 7}" font-size="10.5" text-anchor="${i == 0 ? "start" : i == n - 1 ? "end" : "middle"}" fill="var(--mut)">${t}</text>`,
+          : `<text x="${X(i)}" y="${H - 7}" font-size="9.5" text-anchor="${i == 0 ? "start" : i == n - 1 ? "end" : "middle"}" fill="var(--mut)">${t}</text>`,
       )
       .join("");
 
@@ -227,46 +191,31 @@ function htmlLaporan(rows) {
     <p id="pesan" class="msg"></p>
     <div class="skel"></div>`;
 
-  const [st, lap, exp, inc, pakai, seriRes] = await Promise.all([
+  const [st, lap, seriRes] = await Promise.all([
     db.rpc("admin_stats"),
     db
       .from("support_reports")
       .select("id, created_at, email, type, message, status")
       .order("created_at", { ascending: false })
       .limit(4),
-    db.from("expense_categories").select("id, name, color").is("user_id", null),
-    db.from("income_categories").select("id, name, color").is("user_id", null),
-    db.rpc("admin_category_usage"),
     db.rpc("admin_tx_series"),
   ]);
   TX = seriRes.error ? [] : seriRes.data || [];
 
   const stat = st.data || {};
-  const usage = {};
-  if (!pakai.error)
-    pakai.data.forEach((u) => {
-      usage[`${u.kind}:${u.category_id}`] = Number(u.total);
-    });
-  const pakaiKat = (kind, res) =>
-    (res.data || [])
-      .map((c) => ({ ...c, used: usage[`${kind}:${c.id}`] || 0 }))
-      .filter((c) => c.used > 0)
-      .sort((a, b) => b.used - a.used);
-
   view.innerHTML = `
     <div class="ph"><div><h1 class="d">Dashboard</h1><div class="sub">Ringkasan aktivitas Flowly dan laporan bantuan terbaru dari pengguna.</div></div></div>
     <p id="pesan" class="msg"></p>
     ${st.error ? "" : htmlHero(stat)}
     ${st.error ? "" : `<div class="sec" style="margin-top:22px"><h2 class="d">Ringkasan</h2><span class="sub">Ketuk kartu untuk melihat rincian</span></div><div class="stats">${htmlKartu(stat)}</div>`}
-    <div class="sec"><h2 class="d">Aktivitas dan kategori</h2></div>
-    <div class="g2">${htmlGrafik()}<div class="kwrap"><div class="kin">${htmlBarKategori("Pengeluaran per kategori", pakaiKat("expense", exp), "detail.html#exp")}${htmlBarKategori("Pemasukan per kategori", pakaiKat("income", inc), "detail.html#inc")}</div></div></div>
+    <div class="sec"><h2 class="d">Aktivitas</h2></div>
+    ${htmlGrafik()}
     <div class="sec"><h2 class="d">Laporan bantuan terbaru</h2><a class="lnk" href="laporan.html" style="display:inline-flex;align-items:center;text-decoration:none">Lihat semua →</a></div>
     ${lap.error ? "" : htmlLaporan(lap.data)}`;
 
   const galat = [];
   if (st.error) galat.push("ringkasan (" + st.error.message + ")");
   if (lap.error) galat.push("laporan (" + lap.error.message + ")");
-  if (exp.error || inc.error || pakai.error) galat.push("pemakaian kategori");
   if (seriRes.error) galat.push("grafik (" + seriRes.error.message + ")");
   if (galat.length)
     tampilPesan("Gagal memuat: " + galat.join(", ") + ".", true);
@@ -282,11 +231,16 @@ function htmlLaporan(rows) {
   animasiAngka();
   animasiBar();
   gambarGrafik();
-  fitKategori();
-  document.fonts?.ready.then(fitKategori);
-  let rz = 0;
+  let rz = 0,
+    lebar = $("#chart")?.getBoundingClientRect().width;
   addEventListener("resize", () => {
     cancelAnimationFrame(rz);
-    rz = requestAnimationFrame(fitKategori);
+    rz = requestAnimationFrame(() => {
+      const w = $("#chart")?.getBoundingClientRect().width;
+      if (w !== lebar) {
+        lebar = w;
+        gambarGrafik();
+      }
+    });
   });
 })();

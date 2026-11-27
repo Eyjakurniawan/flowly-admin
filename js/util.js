@@ -33,7 +33,7 @@ function tampilPesan(text, isError = false) {
   el.className = "msg " + (isError ? "is-error" : "is-ok");
 }
 
-// Kelompokkan data harian dari admin_tx_series menjadi Mingguan / Bulanan / Tahunan.
+// Kelompokkan data harian dari admin_tx_series menjadi Mingguan (Sen-Min minggu ini) / Bulanan / Tahunan (Jan-Des).
 // tx: [{kind:'income'|'expense', day:'YYYY-MM-DD', total}]
 function seri(p, tx) {
   const now = new Date(),
@@ -42,13 +42,14 @@ function seri(p, tx) {
     h0 = new Date(y, m, now.getDate());
   let l, idx;
   if (p === "Mingguan") {
-    l = [];
-    for (let k = 6; k >= 0; k--) {
-      const d = new Date(h0);
-      d.setDate(d.getDate() - k);
-      l.push(HR[d.getDay()].slice(0, 3));
-    }
-    idx = (d, n) => (n >= 0 && n < 7 ? 6 - n : -1);
+    // Minggu ini, mulai Senin sampai Minggu.
+    l = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
+    const senin = new Date(h0);
+    senin.setDate(senin.getDate() - ((h0.getDay() + 6) % 7));
+    idx = (d) => {
+      const n = Math.round((d - senin) / 864e5);
+      return n >= 0 && n < 7 ? n : -1;
+    };
   } else if (p === "Bulanan") {
     const nw = Math.ceil(new Date(y, m + 1, 0).getDate() / 7);
     l = Array.from({ length: nw }, (_, i) => "Minggu " + (i + 1));
