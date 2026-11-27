@@ -126,7 +126,7 @@ const pill = (teks, warna) =>
   `<span class="pill" style="--c:${esc(warna)}">${esc(teks)}</span>`;
 
 // Tabel pengguna: email | jumlah | pil-pil (satu pil per item).
-function tabelItem(items, judulJumlah, judulPil, pilTeks) {
+function tabelItem(items, judulJumlah, judulPil, pilTeks, pilWarna = (x) => x.warna) {
   const per = new Map();
   items.forEach((x) => {
     if (!per.has(x.user_id)) per.set(x.user_id, []);
@@ -136,7 +136,7 @@ function tabelItem(items, judulJumlah, judulPil, pilTeks) {
     .sort((a, b) => per.get(b.id).length - per.get(a.id).length)
     .map((u) => {
       const l = per.get(u.id);
-      return [ue(u), l.length, `<span class="chips">${l.map((x) => pill(pilTeks(x), x.warna)).join("")}</span>`];
+      return [ue(u), l.length, `<span class="chips">${l.map((x) => pill(pilTeks(x), pilWarna(x))).join("")}</span>`];
     });
   return ut("minmax(200px,2fr) 100px minmax(0,3fr)", ["Pengguna", judulJumlah, judulPil], rows);
 }
@@ -209,7 +209,9 @@ const DET = {
       kelompok(it).forEach((g, i) => (warna[g.k] = WARNA_RENCANA[i % WARNA_RENCANA.length]));
       it.forEach((x) => (x.warna = warna[x.nama]));
       const ket = (x) => x.nama + " \u2022 " + (sudahTercapai(x.status) ? "Tercapai" : "Aktif");
-      return bx("Rencana per kategori", kelompok(it)) + tabelItem(it, "Rencana", "Detail", ket);
+      // Warna pil mengikuti STATUS: biru = aktif, hijau = tercapai (bar kategori tetap berwarna per kategori).
+      const warnaStatus = (x) => (sudahTercapai(x.status) ? "#16A34A" : "#2563EB");
+      return bx("Rencana per kategori", kelompok(it)) + tabelItem(it, "Rencana", "Detail", ket, warnaStatus);
     },
   },
   budgets: {
